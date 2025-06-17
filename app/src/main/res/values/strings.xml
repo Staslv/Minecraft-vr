@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">VR Minecraft</string>
+    <string name="vr_not_supported">VR is not supported on this device</string>
+    <string name="error_loading">Error loading VR content</string>
 </resources> 
