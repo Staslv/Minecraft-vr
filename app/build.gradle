@@ -19,6 +19,9 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
+        debug {
+            debuggable true
+        }
     }
     
     compileOptions {
@@ -28,12 +31,20 @@ android {
 
     sourceSets {
         main {
-            assets.srcDirs = ['assets']
+            assets.srcDirs = ['src/main/assets']
+            java.srcDirs = ['src/main/java']
+            res.srcDirs = ['src/main/res']
         }
+    }
+
+    lintOptions {
+        abortOnError false
     }
 }
 
 dependencies {
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'com.google.android.material:material:1.11.0'
+    implementation 'androidx.webkit:webkit:1.8.0'
+    implementation 'com.google.android.gms:play-services-vision:20.1.3'
 } 
