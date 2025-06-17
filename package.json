@@ -1,0 +1,14 @@
+{
+  "name": "vr-minecraft",
+  "version": "1.0.0",
+  "description": "VR Minecraft для Oculus Quest",
+  "scripts": {
+    "start": "http-server -p 8080",
+    "build": "mkdir -p dist && cp -r *.html *.js *.json *.glb js/ icons/ dist/",
+    "generate-icons": "node js/generate-icons.js"
+  },
+  "dependencies": {
+    "http-server": "^14.1.1",
+    "canvas": "^2.11.2"
+  }
+} 

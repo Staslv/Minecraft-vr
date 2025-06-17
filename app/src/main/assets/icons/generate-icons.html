@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Generate Icons</title>
+</head>
+<body>
+    <canvas id="canvas192" width="192" height="192"></canvas>
+    <canvas id="canvas512" width="512" height="512"></canvas>
+    <script>
+        function createIcon(canvas) {
+            const ctx = canvas.getContext('2d');
+            const size = canvas.width;
+
+            // Background
+            ctx.fillStyle = '#87CEEB';
+            ctx.fillRect(0, 0, size, size);
+
+            // Draw a simple minecraft-style block
+            const blockSize = size * 0.6;
+            const blockX = (size - blockSize) / 2;
+            const blockY = (size - blockSize) / 2;
+
+            // Block face
+            ctx.fillStyle = '#7FB238';
+            ctx.fillRect(blockX, blockY, blockSize, blockSize);
+
+            // Block shading
+            ctx.fillStyle = '#91BD59';
+            ctx.fillRect(blockX, blockY, blockSize, blockSize * 0.3);
+
+            // Block outline
+            ctx.strokeStyle = '#000000';
+            ctx.lineWidth = size * 0.02;
+            ctx.strokeRect(blockX, blockY, blockSize, blockSize);
+
+            // Convert to data URL
+            return canvas.toDataURL('image/png');
+        }
+
+        // Generate icons
+        const canvas192 = document.getElementById('canvas192');
+        const canvas512 = document.getElementById('canvas512');
+
+        const icon192 = createIcon(canvas192);
+        const icon512 = createIcon(canvas512);
+
+        // Create download links
+        const link192 = document.createElement('a');
+        link192.href = icon192;
+        link192.download = 'icon-192x192.png';
+        link192.textContent = 'Download 192x192 icon';
+        document.body.appendChild(link192);
+        document.body.appendChild(document.createElement('br'));
+
+        const link512 = document.createElement('a');
+        link512.href = icon512;
+        link512.download = 'icon-512x512.png';
+        link512.textContent = 'Download 512x512 icon';
+        document.body.appendChild(link512);
+    </script>
+</body>
+</html> 

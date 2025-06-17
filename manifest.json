@@ -1,0 +1,27 @@
+{
+  "name": "VR Minecraft",
+  "short_name": "VR Minecraft",
+  "description": "VR Minecraft clone for Oculus Quest",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#87CEEB",
+  "theme_color": "#87CEEB",
+  "orientation": "landscape",
+  "icons": [
+    {
+      "src": "icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "xr_default_icon": "icons/icon-512x512.png",
+  "xr_category": "games",
+  "xr_orientation": "landscape",
+  "xr_hand_tracking": true,
+  "xr_controller_model": true
+} 

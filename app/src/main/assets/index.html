@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#87CEEB">
+    <meta name="xr-required-features" content="local-floor, bounded-floor, hand-tracking">
+    <meta name="xr-optional-features" content="dom-overlay, hit-test">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" type="image/png" href="/icons/icon-192x192.png">
+    <title>VR Minecraft</title>
+    <style>
+        body { 
+            margin: 0; 
+            overflow: hidden;
+            position: fixed;
+            width: 100%;
+            height: 100%;
+        }
+        canvas { 
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+        #crosshair-left, #crosshair-right {
+            position: fixed;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 24px;
+            pointer-events: none;
+            z-index: 1000;
+        }
+        #crosshair-left {
+            left: 25%;
+        }
+        #crosshair-right {
+            left: 75%;
+        }
+        #inventory {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.7);
+            padding: 10px;
+            color: white;
+            display: flex;
+            gap: 10px;
+            z-index: 1000;
+        }
+        .inventory-slot {
+            width: 50px;
+            height: 50px;
+            border: 2px solid #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .inventory-slot.selected {
+            border-color: #ffff00;
+        }
+        #music-control {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.7);
+            padding: 10px;
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 1000;
+        }
+        #music-control img {
+            width: 30px;
+            height: 30px;
+        }
+        #score {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(0,0,0,0.7);
+            padding: 10px;
+            color: white;
+            font-size: 20px;
+            z-index: 1000;
+        }
+        #vr-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            z-index: 1000;
+        }
+        #loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            z-index: 2000;
+        }
+        #chest-interface {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.8);
+            padding: 20px;
+            border-radius: 10px;
+            color: white;
+            display: none;
+            z-index: 1000;
+        }
+        .chest-slot {
+            width: 50px;
+            height: 50px;
+            border: 2px solid #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 5px;
+            cursor: pointer;
+        }
+        .chest-slot:hover {
+            border-color: #ffff00;
+        }
+        .chest-slot .price {
+            position: absolute;
+            bottom: -20px;
+            font-size: 12px;
+            color: #ffd700;
+        }
+        #chest-close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            cursor: pointer;
+            color: white;
+            font-size: 20px;
+        }
+        #shop-interface {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.8);
+            padding: 20px;
+            border-radius: 10px;
+            color: white;
+            display: none;
+            z-index: 1000;
+            width: 400px;
+        }
+        .shop-category {
+            margin-bottom: 20px;
+        }
+        .shop-category h3 {
+            color: #ffd700;
+            margin-bottom: 10px;
+        }
+        .shop-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border: 1px solid #444;
+            margin: 5px 0;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .shop-item:hover {
+            background: rgba(255,255,255,0.1);
+        }
+        .shop-item .price {
+            margin-left: auto;
+            color: #ffd700;
+        }
+        #balance {
+            position: fixed;
+            top: 20px;
+            right: 80px;
+            background: rgba(0,0,0,0.7);
+            padding: 10px;
+            color: #ffd700;
+            font-size: 20px;
+            z-index: 100;
+        }
+        #shop-button {
+            position: fixed;
+            top: 20px;
+            right: 150px;
+            background: rgba(0,0,0,0.7);
+            padding: 10px;
+            color: white;
+            cursor: pointer;
+            z-index: 100;
+        }
+    </style>
+</head>
+<body>
+    <div id="music-control" onclick="toggleMusic()">
+        <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0id2hpdGUiPjxwYXRoIGQ9Ik0zIDl2Nmg0bDUgNVY0TDcgOUgzem0xMy41IDNjMC0xLjc3LTEuMDItMy4yOS0yLjUtNC4wM3Y4LjA1YzEuNDgtLjczIDIuNS0yLjI1IDIuNS00LjAyek0xNCAzLjIzdjIuMDZjMi44OS44NiA1IDMuNTQgNSA2Ljcxcy0yLjExIDUuODUtNSA2LjcxdjIuMDZjNC4wMS0uOTEgNy00LjQ5IDctOC43N3MtMi45OS03Ljg2LTctOC43N3oiLz48L3N2Zz4=" alt="Music">
+    </div>
+    <div id="crosshair-left">+</div>
+    <div id="crosshair-right">+</div>
+    <div id="inventory">
+        <div class="inventory-slot selected" data-type="stone">🪨</div>
+        <div class="inventory-slot" data-type="dirt">🟤</div>
+        <div class="inventory-slot" data-type="wood">🪵</div>
+        <div class="inventory-slot" data-type="leaves">🍃</div>
+    </div>
+    <div id="chest-interface">
+        <div id="chest-close">✕</div>
+        <div style="display: flex; flex-wrap: wrap; width: 300px;">
+            <div class="chest-slot" data-type="stone" data-price="10">
+                🪨
+                <div class="price">10 очков</div>
+            </div>
+            <div class="chest-slot" data-type="dirt" data-price="5">
+                🟤
+                <div class="price">5 очков</div>
+            </div>
+            <div class="chest-slot" data-type="wood" data-price="15">
+                🪵
+                <div class="price">15 очков</div>
+            </div>
+            <div class="chest-slot" data-type="leaves" data-price="3">
+                🍃
+                <div class="price">3 очка</div>
+            </div>
+        </div>
+    </div>
+    <div id="balance">💰 1000</div>
+    <div id="shop-button">🛒 Магазин</div>
+    <div id="shop-interface">
+        <div id="shop-close">✕</div>
+        <div class="shop-category">
+            <h3>Блоки</h3>
+            <div class="shop-item" data-type="stone" data-price="10">
+                🪨 Камень
+                <span class="price">10 монет</span>
+            </div>
+            <div class="shop-item" data-type="dirt" data-price="5">
+                🟤 Земля
+                <span class="price">5 монет</span>
+            </div>
+            <div class="shop-item" data-type="wood" data-price="15">
+                🪵 Дерево
+                <span class="price">15 монет</span>
+            </div>
+            <div class="shop-item" data-type="leaves" data-price="3">
+                🍃 Листья
+                <span class="price">3 монеты</span>
+            </div>
+        </div>
+        <div class="shop-category">
+            <h3>Оружие</h3>
+            <div class="shop-item" data-type="sword" data-price="100">
+                ⚔️ Меч
+                <span class="price">100 монет</span>
+            </div>
+            <div class="shop-item" data-type="bow" data-price="150">
+                🏹 Лук
+                <span class="price">150 монет</span>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    <script type="module">
+        import { VRMinecraft } from './js/main.js';
+        
+        // Initialize the game when the page loads
+        window.addEventListener('load', () => {
+            const game = new VRMinecraft();
+            
+            // Handle window resize
+            window.addEventListener('resize', () => {
+                game.camera.aspect = window.innerWidth / window.innerHeight;
+                game.camera.updateProjectionMatrix();
+                game.renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+        });
+    </script>
+</body>
+</html> 
